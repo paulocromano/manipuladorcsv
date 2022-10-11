@@ -8,8 +8,8 @@ import lombok.Getter;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public enum OperadorLogico {
 
-    AND("@"),
-    OR("#"),
+    AND("@@"),
+    OR("##"),
     NEGACAO("!"),
     IGUALDADE("=="),
     MENOR("<"),

@@ -6,10 +6,7 @@ import br.com.manipuladorcsv.manipuladores.interfaces.Manipulador;
 import lombok.Getter;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -20,7 +17,6 @@ public class ManipuladorParametrosRequisicao<E> {
     private Optional<Predicate<E>> predicateFilterOptional;
     private Manipulador<E> manipulador;
 
-    private static final String SEPARADOR_CONDICIONAIS = "_";
     private static final String ATRIBUICAO = "=";
 
 
@@ -39,42 +35,105 @@ public class ManipuladorParametrosRequisicao<E> {
                         separarCondicionais(condicionais);
                         break;
                     }
-                    default: throw new RuntimeException("Não tratado!");
+                    default: throw new RuntimeException("Tipo de operação não implementada!");
                 }
             }
         }
     }
 
+    private void separarCondicionais(String expressaoCompleta) {
+        boolean expressaoContemOperadorLogicoAndOr = expressaoContemOperadorLogicoAndOr(expressaoCompleta);
 
-    private void separarCondicionais(String condicionais) {
-        String[] expressoesCompletas = condicionais.split(SEPARADOR_CONDICIONAIS);
+        this.predicateFilterOptional = expressaoContemOperadorLogicoAndOr
+            ? gerarPredicateQuandoHouverOperadorLogicoAndOr(expressaoCompleta)
+            : construirPredicateDeAcordoComParametrosDaRequisicao(expressaoCompleta);
+    }
 
-        for (String expressaoCompleta : expressoesCompletas) {
-            Optional<OperadorLogico> optionalOperadorLogico = buscarOperadorLogicoDaExpressao(expressaoCompleta);
+    private boolean expressaoContemOperadorLogicoAndOr(String expressaoCompleta) {
+        return expressaoCompleta.contains(OperadorLogico.AND.getValor()) || expressaoCompleta.contains(OperadorLogico.OR.getValor());
+    }
 
-            if (optionalOperadorLogico.isPresent()) {
-                String[] partesExpressoes = expressaoCompleta.split(optionalOperadorLogico.get().getValor());
+    private Optional<Predicate<E>> gerarPredicateQuandoHouverOperadorLogicoAndOr(String expressaoCompleta) {
+        String[] expressaoSeparadaPorAndOr = expressaoCompleta.split(OperadorLogico.AND.getValor() + "|" + OperadorLogico.OR.getValor());
+        List<OperadorLogico> operadoresLogicosAndOr = buscarOperadoresLogicosAndOrDaExpressao(expressaoCompleta, expressaoSeparadaPorAndOr);
 
-                for (String parteExpressao : partesExpressoes) {
-                    if (!parteExpressao.contains(ATRIBUICAO)) throw new RuntimeException("Erro de sintaxe! Falta o token  de Atribuição -> " + ATRIBUICAO);
-                    if (parteExpressao.split(ATRIBUICAO).length == 0) throw new RuntimeException("A expressão não contem uma chave e valor");
+        if (expressaoSeparadaPorAndOr.length - 1 != operadoresLogicosAndOr.size()) throw new RuntimeException("A expressão com Operadores AND e/ou OR é inválida!");
 
-                    String nomeFieldRequisicao = parteExpressao.split(ATRIBUICAO)[0];
-                    Optional<Field> fieldParametroRequisicaoOptional = filtrarFieldRequisicaoReferenteAoFieldDaClasse(nomeFieldRequisicao);
+        Predicate<E> predicateExpressaoAnterior;
+        Optional<Predicate<E>> predicateCompletoOptional = Optional.empty();
 
-                    if (fieldParametroRequisicaoOptional.isPresent()) {
-                        if (parteExpressao.split(ATRIBUICAO).length == 1) throw new RuntimeException("O campo '" +  nomeFieldRequisicao + "' não possui um valor!");
+        for (int index = 1; index < expressaoSeparadaPorAndOr.length; index++) {
+            predicateExpressaoAnterior = construirPredicateDeAcordoComParametrosDaRequisicao(expressaoSeparadaPorAndOr[index - 1]).get();
+            Predicate<E> predicateExpressaoAtual = construirPredicateDeAcordoComParametrosDaRequisicao(expressaoSeparadaPorAndOr[index]).get();
+            OperadorLogico operadorLogico = operadoresLogicosAndOr.get(index - 1);
 
-                        gerarValorDaExpressaoReferenteAoTipoDoFieldDaClasse(fieldParametroRequisicaoOptional,
-                                parteExpressao, optionalOperadorLogico.get());
-                    }
+            switch (operadorLogico) {
+                case AND: {
+                    predicateCompletoOptional = Optional.of(predicateCompletoOptional.isEmpty()
+                            ? predicateExpressaoAnterior.and(predicateExpressaoAtual)
+                            : predicateCompletoOptional.get().and(predicateExpressaoAnterior));
+                    break;
+                }
+                case OR: {
+                    predicateCompletoOptional = Optional.of(predicateCompletoOptional.isEmpty()
+                            ? predicateExpressaoAnterior.or(predicateExpressaoAtual)
+                            : predicateCompletoOptional.get().and(predicateExpressaoAnterior));
+                    break;
+                }
+                default: throw new RuntimeException("Operador lógico não permitido nesta etapa do processamento!");
+            }
+        }
+
+        return predicateCompletoOptional;
+    }
+
+    private List<OperadorLogico> buscarOperadoresLogicosAndOrDaExpressao(String expressaoCompleta, String[] expressaoSeparadaPorAndOr) {
+        List<OperadorLogico> operadoresLogicosAndOr = new ArrayList<>();
+        int inicioSubstring = expressaoSeparadaPorAndOr[0].length();
+        int fimSubstring = expressaoSeparadaPorAndOr[0].length() + 2;
+
+        for (int index = 0; index < expressaoSeparadaPorAndOr.length - 1; index++) {
+            String operadorLogico = expressaoCompleta.substring(inicioSubstring, fimSubstring);
+            inicioSubstring += expressaoSeparadaPorAndOr[index + 1].length() + 2;
+            fimSubstring = inicioSubstring + 2;
+
+            if (operadorLogico.equals(OperadorLogico.AND.getValor())) operadoresLogicosAndOr.add(OperadorLogico.AND);
+            else if (operadorLogico.equals(OperadorLogico.OR.getValor())) operadoresLogicosAndOr.add(OperadorLogico.OR);
+        }
+
+        return operadoresLogicosAndOr;
+    }
+
+    private Optional<Predicate<E>> construirPredicateDeAcordoComParametrosDaRequisicao(String expressaoCompleta) {
+        Optional<OperadorLogico> optionalOperadorLogicoExcetoAndOr = buscarOperadorLogicoDaExpressaoExcetoAndOr(expressaoCompleta);
+
+        if (optionalOperadorLogicoExcetoAndOr.isPresent()) {
+            String[] partesExpressoes = expressaoCompleta.split(optionalOperadorLogicoExcetoAndOr.get().getValor());
+
+            for (String parteExpressao : partesExpressoes) {
+                if (!parteExpressao.contains(ATRIBUICAO)) throw new RuntimeException("Erro de sintaxe! Falta o token de Atribuição -> " + ATRIBUICAO);
+                if (parteExpressao.split(ATRIBUICAO).length == 0) throw new RuntimeException("A expressão não contem uma chave e valor");
+
+                String nomeFieldRequisicao = parteExpressao.split(ATRIBUICAO)[0];
+                Optional<Field> fieldParametroRequisicaoOptional = filtrarFieldRequisicaoReferenteAoFieldDaClasse(nomeFieldRequisicao);
+
+                if (fieldParametroRequisicaoOptional.isPresent()) {
+                    if (parteExpressao.split(ATRIBUICAO).length == 1) throw new RuntimeException("O campo '" +  nomeFieldRequisicao + "' não possui um valor!");
+
+                    return gerarValorDaExpressaoReferenteAoTipoDoFieldDaClasse(fieldParametroRequisicaoOptional,
+                            parteExpressao, optionalOperadorLogicoExcetoAndOr.get());
                 }
             }
         }
+
+        throw new RuntimeException("Operador lógico não encontrado!");
     }
 
-    private Optional<OperadorLogico> buscarOperadorLogicoDaExpressao(String expressaoCompleta) {
-        final List<OperadorLogico> OPERADORES_LOGICOS = Arrays.stream(OperadorLogico.values()).collect(Collectors.toList());
+    private Optional<OperadorLogico> buscarOperadorLogicoDaExpressaoExcetoAndOr(String expressaoCompleta) {
+        final List<OperadorLogico> OPERADORES_LOGICOS_RESTRINGIDOS = Arrays.asList(OperadorLogico.AND, OperadorLogico.OR);
+        final List<OperadorLogico> OPERADORES_LOGICOS = Arrays.stream(OperadorLogico.values())
+                .filter(operadorLogico -> !OPERADORES_LOGICOS_RESTRINGIDOS.contains(operadorLogico))
+                .collect(Collectors.toList());
 
         return OPERADORES_LOGICOS
                 .stream()
@@ -89,7 +148,7 @@ public class ManipuladorParametrosRequisicao<E> {
                 .findFirst();
     }
 
-    private void gerarValorDaExpressaoReferenteAoTipoDoFieldDaClasse(Optional<Field> fieldParametroRequisicaoOptional,
+    private Optional<Predicate<E>> gerarValorDaExpressaoReferenteAoTipoDoFieldDaClasse(Optional<Field> fieldParametroRequisicaoOptional,
                String parteExpressao, OperadorLogico operadorLogico) {
 
         Field fieldParametroRequisicao = fieldParametroRequisicaoOptional.get();
@@ -97,7 +156,7 @@ public class ManipuladorParametrosRequisicao<E> {
         Class<?> fieldClass = fieldParametroRequisicao.getType();
         Object valorObjectRequisicao = identificarClasseDoField(fieldClass, valorFieldDaRequisicao);
 
-        predicateFilterOptional = Optional.of(manipulador.gerarPredicate(fieldParametroRequisicao,
+        return Optional.of(manipulador.gerarPredicate(fieldParametroRequisicao,
                 operadorLogico, valorObjectRequisicao));
     }
 
