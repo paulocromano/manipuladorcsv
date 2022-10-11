@@ -1,6 +1,9 @@
 package br.com.manipuladorcsv.manipuladores;
 
 
+import br.com.manipuladorcsv.manipuladores.enums.OperadorLogico;
+import br.com.manipuladorcsv.manipuladores.interfaces.ManipuladorPredicate;
+
 import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -70,7 +73,7 @@ public class GeradorPredicate<E> implements ManipuladorPredicate<E> {
                 throw new RuntimeException(e);
             }
 
-            throw new RuntimeException("Geração do Predicate com Operador -> '" + OperadorLogico.MENOR.getValor() + "' não tratado!");
+            throw new RuntimeException("Geração do Predicate com Operador -> '" + OperadorLogico.MENOR_IGUAL.getValor() + "' não tratado!");
         };
     }
 
@@ -92,7 +95,7 @@ public class GeradorPredicate<E> implements ManipuladorPredicate<E> {
                 throw new RuntimeException(e);
             }
 
-            throw new RuntimeException("Geração do Predicate com Operador -> '" + OperadorLogico.MENOR.getValor() + "' não tratado ou inválido!");
+            throw new RuntimeException("Geração do Predicate com Operador -> '" + OperadorLogico.MAIOR.getValor() + "' não tratado ou inválido!");
         };
     }
 
@@ -114,7 +117,7 @@ public class GeradorPredicate<E> implements ManipuladorPredicate<E> {
                 throw new RuntimeException(e);
             }
 
-            throw new RuntimeException("Geração do Predicate com Operador -> '" + OperadorLogico.MENOR.getValor() + "' não tratado!");
+            throw new RuntimeException("Geração do Predicate com Operador -> '" + OperadorLogico.MAIOR_IGUAL.getValor() + "' não tratado!");
         };
     }
 }

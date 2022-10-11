@@ -1,8 +1,8 @@
 package br.com.manipuladorcsv.despesaPublica.model;
 
 import br.com.manipuladorcsv.manipuladores.GeradorPredicate;
-import br.com.manipuladorcsv.manipuladores.Manipulador;
-import br.com.manipuladorcsv.manipuladores.OperadorLogico;
+import br.com.manipuladorcsv.manipuladores.interfaces.Manipulador;
+import br.com.manipuladorcsv.manipuladores.enums.OperadorLogico;
 import br.com.manipuladorcsv.manipuladores.PreparacaoPredicates;
 import org.springframework.stereotype.Component;
 

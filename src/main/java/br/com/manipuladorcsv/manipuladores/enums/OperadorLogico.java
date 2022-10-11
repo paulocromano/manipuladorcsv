@@ -1,4 +1,4 @@
-package br.com.manipuladorcsv.manipuladores;
+package br.com.manipuladorcsv.manipuladores.enums;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

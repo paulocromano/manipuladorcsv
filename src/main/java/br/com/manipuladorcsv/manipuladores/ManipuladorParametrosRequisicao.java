@@ -1,5 +1,8 @@
 package br.com.manipuladorcsv.manipuladores;
 
+import br.com.manipuladorcsv.manipuladores.enums.OperadorLogico;
+import br.com.manipuladorcsv.manipuladores.enums.TipoParametro;
+import br.com.manipuladorcsv.manipuladores.interfaces.Manipulador;
 import lombok.Getter;
 
 import java.lang.reflect.Field;
@@ -38,7 +41,6 @@ public class ManipuladorParametrosRequisicao<E> {
                     }
                     default: throw new RuntimeException("Não tratado!");
                 }
-
             }
         }
     }
@@ -91,19 +93,21 @@ public class ManipuladorParametrosRequisicao<E> {
                String parteExpressao, OperadorLogico operadorLogico) {
 
         Field fieldParametroRequisicao = fieldParametroRequisicaoOptional.get();
-        String valor = parteExpressao.split(ATRIBUICAO)[1];
+        String valorFieldDaRequisicao = parteExpressao.split(ATRIBUICAO)[1];
         Class<?> fieldClass = fieldParametroRequisicao.getType();
-        Optional<Object> valorObjectRequisicaoOptional = Optional.empty();
-
-        if (fieldClass.equals(Integer.class)) valorObjectRequisicaoOptional = Optional.of(Integer.valueOf(valor));
-        if (fieldClass.equals(Long.class)) valorObjectRequisicaoOptional = Optional.of(Long.valueOf(valor));
-        if (fieldClass.equals(Float.class)) valorObjectRequisicaoOptional = Optional.of(Float.valueOf(valor));
-        if (fieldClass.equals(Double.class)) valorObjectRequisicaoOptional = Optional.of(Double.valueOf(valor));
-        else if (fieldClass.equals(String.class)) valorObjectRequisicaoOptional = Optional.of(valor);
-
-        if (valorObjectRequisicaoOptional.isEmpty()) throw new RuntimeException("Tipo de Classe não tratada para geração do Predicate!");
+        Object valorObjectRequisicao = identificarClasseDoField(fieldClass, valorFieldDaRequisicao);
 
         predicateFilterOptional = Optional.of(manipulador.gerarPredicate(fieldParametroRequisicao,
-                operadorLogico, valorObjectRequisicaoOptional.get()));
+                operadorLogico, valorObjectRequisicao));
+    }
+
+    private Object identificarClasseDoField(Class<?> fieldClass, String valorFieldDaRequisicao) {
+        if (fieldClass.equals(Integer.class)) return Integer.valueOf(valorFieldDaRequisicao);
+        else if (fieldClass.equals(Long.class)) return Long.valueOf(valorFieldDaRequisicao);
+        else if (fieldClass.equals(Float.class)) return Float.valueOf(valorFieldDaRequisicao);
+        else if (fieldClass.equals(Double.class)) return Double.valueOf(valorFieldDaRequisicao);
+        else if (fieldClass.equals(String.class)) return valorFieldDaRequisicao;
+
+        throw new RuntimeException("Tipo de Classe não tratada para geração do Predicate!");
     }
 }

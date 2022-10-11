@@ -42,12 +42,17 @@ public class DespesaPublicaService {
             Response<List<DespesaPublica>> responseBuscarDespesasPublicasDeMinasGerais = callDespesasPublicas.execute();
 
             if (responseBuscarDespesasPublicasDeMinasGerais.isSuccessful()) {
-                ManipuladorParametrosRequisicao<DespesaPublica> manipuladorParametrosRequisicao = new ManipuladorParametrosRequisicao(manipuladorDespesaPublica);
-                manipuladorParametrosRequisicao.formatarParametrosDaRequisicao(parametros);
+                List<DespesaPublica> despesasPublicas = responseBuscarDespesasPublicasDeMinasGerais.body();
 
-                List<DespesaPublica> despesasPublicas = responseBuscarDespesasPublicasDeMinasGerais.body()
-                        .stream().filter(manipuladorParametrosRequisicao.getPredicateFilterOptional().get())
-                        .collect(Collectors.toList());
+                if (!parametros.isEmpty()) {
+                    ManipuladorParametrosRequisicao<DespesaPublica> manipuladorParametrosRequisicao = new ManipuladorParametrosRequisicao(manipuladorDespesaPublica);
+                    manipuladorParametrosRequisicao.formatarParametrosDaRequisicao(parametros);
+
+                    despesasPublicas = despesasPublicas.stream()
+                            .filter(manipuladorParametrosRequisicao.getPredicateFilterOptional().get())
+                            .collect(Collectors.toList());
+                }
+
                 return ResponseEntity.ok(despesasPublicas);
             }
 
