@@ -1,8 +1,7 @@
-package br.com.manipuladorcsv.manipuladores.interfaces;
+package br.com.manipuladorcsv.manipuladores.operacoes;
 
 
 import br.com.manipuladorcsv.manipuladores.enums.OperadorLogico;
-import br.com.manipuladorcsv.manipuladores.interfaces.ManipuladorPredicate;
 
 import java.lang.reflect.Field;
 import java.time.LocalDate;

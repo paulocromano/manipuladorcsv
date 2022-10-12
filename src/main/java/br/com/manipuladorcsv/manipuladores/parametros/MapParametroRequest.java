@@ -1,11 +1,10 @@
 package br.com.manipuladorcsv.manipuladores.parametros;
 
-import br.com.manipuladorcsv.manipuladores.interfaces.ManipuladorFunction;
-import br.com.manipuladorcsv.manipuladores.interfaces.ManipuladorFunctionImpl;
+import br.com.manipuladorcsv.manipuladores.operacoes.ManipuladorFunction;
+import br.com.manipuladorcsv.manipuladores.operacoes.ManipuladorFunctionImpl;
 import br.com.manipuladorcsv.manipuladores.interfaces.ManipuladorParametroRequest;
 
 import java.lang.reflect.Field;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 

@@ -1,9 +1,9 @@
 package br.com.manipuladorcsv.manipuladores.parametros;
 
-import br.com.manipuladorcsv.manipuladores.interfaces.ManipuladorPredicateImpl;
+import br.com.manipuladorcsv.manipuladores.operacoes.ManipuladorPredicateImpl;
 import br.com.manipuladorcsv.manipuladores.enums.OperadorLogico;
 import br.com.manipuladorcsv.manipuladores.interfaces.ManipuladorParametroRequest;
-import br.com.manipuladorcsv.manipuladores.interfaces.ManipuladorPredicate;
+import br.com.manipuladorcsv.manipuladores.operacoes.ManipuladorPredicate;
 
 import java.lang.reflect.Field;
 import java.util.*;

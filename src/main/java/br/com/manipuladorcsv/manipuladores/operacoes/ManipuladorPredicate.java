@@ -1,4 +1,4 @@
-package br.com.manipuladorcsv.manipuladores.interfaces;
+package br.com.manipuladorcsv.manipuladores.operacoes;
 
 import br.com.manipuladorcsv.manipuladores.enums.OperadorLogico;
 

@@ -5,6 +5,7 @@ import br.com.manipuladorcsv.despesaPublica.model.ManipuladorParametroRequestDes
 import br.com.manipuladorcsv.despesaPublica.request.BuscaDepesasPublicasService;
 import br.com.manipuladorcsv.manipuladores.GeradorOperacoesRequisicao;
 import br.com.manipuladorcsv.manipuladores.enums.TipoParametro;
+import br.com.manipuladorcsv.manipuladores.utils.StreamUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +32,7 @@ public class DespesaPublicaService {
     private ManipuladorParametroRequestDespesaPublica manipuladorDespesaPublica;
 
 
-    public ResponseEntity<?> buscarDespesasPublicasDeMinasGerais(Map<String, String> parametros) {
+    public ResponseEntity<Object> buscarDespesasPublicasDeMinasGerais(Map<String, String> parametros) {
         Retrofit retrofit =
                 new Retrofit.Builder()
                         .baseUrl(urlServicoDespesaPublica)
@@ -49,15 +50,7 @@ public class DespesaPublicaService {
                 Object response = despesasPublicas;
 
                 if (!parametros.isEmpty()) {
-                    GeradorOperacoesRequisicao<DespesaPublica> geradorOperacoesRequisicao = new GeradorOperacoesRequisicao(manipuladorDespesaPublica);
-                    geradorOperacoesRequisicao.gerarOperacoesDaRequisicaoConformeParametros(parametros);
-                    //Predicate<DespesaPublica> despesaPublicaPredicate = (Predicate<DespesaPublica>) geradorOperacoesRequisicao.getParametrosRequest().get(TipoParametro.FILTER).getOperacao();
-                    Function<DespesaPublica, Object> despesaPublicaFunction = (Function<DespesaPublica, Object>) geradorOperacoesRequisicao.getParametrosRequest().get(TipoParametro.MAP).getOperacao();
-
-                    response = despesasPublicas.stream()
-                            .map(despesaPublicaFunction)
-                            .peek(System.out::println)
-                            .collect(Collectors.toList());
+                    response = StreamUtils.processarStreamConformeParametrosDaRequisicao(this.manipuladorDespesaPublica, parametros, despesasPublicas);
                 }
 
                 return ResponseEntity.ok(response);

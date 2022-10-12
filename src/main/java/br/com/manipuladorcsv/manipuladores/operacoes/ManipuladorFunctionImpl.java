@@ -1,4 +1,4 @@
-package br.com.manipuladorcsv.manipuladores.interfaces;
+package br.com.manipuladorcsv.manipuladores.operacoes;
 
 import java.lang.reflect.Field;
 import java.util.function.Function;
