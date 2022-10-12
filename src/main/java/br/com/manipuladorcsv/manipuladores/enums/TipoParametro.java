@@ -10,7 +10,8 @@ public enum TipoParametro {
 
     FILTER("filter"),
     MAP("map"),
-    GROUPY_BY("groupBy");
+    GROUPY_BY("groupBy"),
+    ORDER_BY("orderBy");
 
 
     private String valor;

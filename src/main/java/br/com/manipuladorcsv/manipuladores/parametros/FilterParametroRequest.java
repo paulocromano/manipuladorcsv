@@ -1,52 +1,51 @@
-package br.com.manipuladorcsv.manipuladores;
+package br.com.manipuladorcsv.manipuladores.parametros;
 
+import br.com.manipuladorcsv.manipuladores.interfaces.ManipuladorPredicateImpl;
 import br.com.manipuladorcsv.manipuladores.enums.OperadorLogico;
-import br.com.manipuladorcsv.manipuladores.enums.TipoParametro;
-import br.com.manipuladorcsv.manipuladores.interfaces.Manipulador;
-import lombok.Getter;
+import br.com.manipuladorcsv.manipuladores.interfaces.ManipuladorParametroRequest;
+import br.com.manipuladorcsv.manipuladores.interfaces.ManipuladorPredicate;
 
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+public class FilterParametroRequest<E> implements ParametroRequest<E, Predicate<E>> {
 
-public class ManipuladorParametrosRequisicao<E> {
+    private ManipuladorParametroRequest<E> manipuladorParametroRequest;
 
-    @Getter
-    private Optional<Predicate<E>> predicateFilterOptional;
-    private Manipulador<E> manipulador;
+    private ManipuladorPredicate<E> manipuladorPredicate;
+    private String conteudoParametro;
 
     private static final String ATRIBUICAO = "=";
 
-
-    public ManipuladorParametrosRequisicao(Manipulador<E> manipulador) {
-        this.manipulador = manipulador;
-        this.predicateFilterOptional = Optional.empty();
+    public FilterParametroRequest() {
+        this.manipuladorPredicate = new ManipuladorPredicateImpl<>();
     }
 
-    public void formatarParametrosDaRequisicao(Map<String, String> parametros) {
-        for (TipoParametro tipoParametro : TipoParametro.values()) {
-            if (parametros.containsKey(tipoParametro.getValor())) {
-                String condicionais = parametros.get(tipoParametro.getValor());
+    @Override
+    public void setManipuladorParametroRequest(ManipuladorParametroRequest<E> manipuladorParametroRequest) {
+        this.manipuladorParametroRequest = manipuladorParametroRequest;
+    }
 
-                switch (tipoParametro) {
-                    case FILTER: {
-                        separarCondicionais(condicionais);
-                        break;
-                    }
-                    default: throw new RuntimeException("Tipo de operação não implementada!");
-                }
-            }
-        }
+    @Override
+    public void setConteudoParametro(String conteudoParametro) {
+        this.conteudoParametro = conteudoParametro;
+    }
+
+    @Override
+    public Predicate<E> getOperacao() {
+        Objects.requireNonNull(manipuladorParametroRequest);
+        Objects.requireNonNull(conteudoParametro);
+        boolean expressaoContemOperadorLogicoAndOr = expressaoContemOperadorLogicoAndOr(conteudoParametro);
+
+        return expressaoContemOperadorLogicoAndOr
+                ? gerarPredicateQuandoHouverOperadorLogicoAndOr(conteudoParametro).get()
+                : construirPredicateDeAcordoComParametrosDaRequisicao(conteudoParametro).get();
     }
 
     private void separarCondicionais(String expressaoCompleta) {
-        boolean expressaoContemOperadorLogicoAndOr = expressaoContemOperadorLogicoAndOr(expressaoCompleta);
 
-        this.predicateFilterOptional = expressaoContemOperadorLogicoAndOr
-            ? gerarPredicateQuandoHouverOperadorLogicoAndOr(expressaoCompleta)
-            : construirPredicateDeAcordoComParametrosDaRequisicao(expressaoCompleta);
     }
 
     private boolean expressaoContemOperadorLogicoAndOr(String expressaoCompleta) {
@@ -142,21 +141,21 @@ public class ManipuladorParametrosRequisicao<E> {
     }
 
     private Optional<Field> filtrarFieldRequisicaoReferenteAoFieldDaClasse(String nomeFieldRequisicao) {
-        return manipulador.getFields()
+        return manipuladorParametroRequest.getFields()
                 .stream()
                 .filter(field -> field.getName().equals(nomeFieldRequisicao))
                 .findFirst();
     }
 
     private Optional<Predicate<E>> gerarValorDaExpressaoReferenteAoTipoDoFieldDaClasse(Optional<Field> fieldParametroRequisicaoOptional,
-               String parteExpressao, OperadorLogico operadorLogico) {
+                                                                                       String parteExpressao, OperadorLogico operadorLogico) {
 
         Field fieldParametroRequisicao = fieldParametroRequisicaoOptional.get();
         String valorFieldDaRequisicao = parteExpressao.split(ATRIBUICAO)[1];
         Class<?> fieldClass = fieldParametroRequisicao.getType();
         Object valorObjectRequisicao = identificarClasseDoField(fieldClass, valorFieldDaRequisicao);
 
-        return Optional.of(manipulador.gerarPredicate(fieldParametroRequisicao,
+        return Optional.of(manipuladorPredicate.gerarPredicate(fieldParametroRequisicao,
                 operadorLogico, valorObjectRequisicao));
     }
 

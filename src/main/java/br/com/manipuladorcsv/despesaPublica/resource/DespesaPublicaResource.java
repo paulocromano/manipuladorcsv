@@ -21,7 +21,7 @@ public class DespesaPublicaResource {
 
 
     @GetMapping(path = "/despesas-minas-gerais")
-    public ResponseEntity<List<DespesaPublica>> buscarDespesasPublicasDeMinasGerais(@RequestParam(required = false) Map<String, String> parametros) {
+    public ResponseEntity<?> buscarDespesasPublicasDeMinasGerais(@RequestParam(required = false) Map<String, String> parametros) {
         return despesaPublicaService.buscarDespesasPublicasDeMinasGerais(parametros);
     }
 }

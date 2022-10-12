@@ -1,4 +1,4 @@
-package br.com.manipuladorcsv.manipuladores;
+package br.com.manipuladorcsv.manipuladores.interfaces;
 
 
 import br.com.manipuladorcsv.manipuladores.enums.OperadorLogico;
@@ -11,19 +11,19 @@ import java.time.LocalTime;
 import java.time.temporal.Temporal;
 import java.util.function.Predicate;
 
-public class GeradorPredicate<E> implements ManipuladorPredicate<E> {
+public class ManipuladorPredicateImpl<E> implements ManipuladorPredicate<E> {
 
     @Override
     public Predicate<E> gerarPredicate(Field field, OperadorLogico operadorLogico, Object object) {
-        return predicate -> {
+        return objectPredicate -> {
             try {
                 switch (operadorLogico) {
-                    case IGUALDADE: return field.get(predicate).equals(object);
-                    case NEGACAO: return !field.get(predicate).equals(object);
-                    case MENOR: return gerarPredicateParaOperadorLogicoMenor(field, object).test(predicate);
-                    case MENOR_IGUAL: return gerarPredicateParaOperadorLogicoMenorIgual(field, object).test(predicate);
-                    case MAIOR: return gerarPredicateParaOperadorLogicoMaior(field, object).test(predicate);
-                    case MAIOR_IGUAL: return gerarPredicateParaOperadorLogicoMaiorIgual(field, object).test(predicate);
+                    case IGUALDADE: return field.get(objectPredicate).equals(object);
+                    case NEGACAO: return !field.get(objectPredicate).equals(object);
+                    case MENOR: return gerarPredicateParaOperadorLogicoMenor(field, object).test(objectPredicate);
+                    case MENOR_IGUAL: return gerarPredicateParaOperadorLogicoMenorIgual(field, object).test(objectPredicate);
+                    case MAIOR: return gerarPredicateParaOperadorLogicoMaior(field, object).test(objectPredicate);
+                    case MAIOR_IGUAL: return gerarPredicateParaOperadorLogicoMaiorIgual(field, object).test(objectPredicate);
                     default: throw new RuntimeException("Operador lógico não tratado -> " + operadorLogico);
                 }
 

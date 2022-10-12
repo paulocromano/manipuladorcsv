@@ -1,9 +1,10 @@
 package br.com.manipuladorcsv.despesaPublica.service;
 
 import br.com.manipuladorcsv.despesaPublica.model.DespesaPublica;
-import br.com.manipuladorcsv.despesaPublica.model.ManipuladorDespesaPublica;
+import br.com.manipuladorcsv.despesaPublica.model.ManipuladorParametroRequestDespesaPublica;
 import br.com.manipuladorcsv.despesaPublica.request.BuscaDepesasPublicasService;
-import br.com.manipuladorcsv.manipuladores.ManipuladorParametrosRequisicao;
+import br.com.manipuladorcsv.manipuladores.GeradorOperacoesRequisicao;
+import br.com.manipuladorcsv.manipuladores.enums.TipoParametro;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,10 +28,10 @@ public class DespesaPublicaService {
     private String urlServicoDespesaPublica;
 
     @Autowired
-    private ManipuladorDespesaPublica manipuladorDespesaPublica;
+    private ManipuladorParametroRequestDespesaPublica manipuladorDespesaPublica;
 
 
-    public ResponseEntity<List<DespesaPublica>> buscarDespesasPublicasDeMinasGerais(Map<String, String> parametros) {
+    public ResponseEntity<?> buscarDespesasPublicasDeMinasGerais(Map<String, String> parametros) {
         Retrofit retrofit =
                 new Retrofit.Builder()
                         .baseUrl(urlServicoDespesaPublica)
@@ -43,17 +46,21 @@ public class DespesaPublicaService {
 
             if (responseBuscarDespesasPublicasDeMinasGerais.isSuccessful()) {
                 List<DespesaPublica> despesasPublicas = responseBuscarDespesasPublicasDeMinasGerais.body();
+                Object response = despesasPublicas;
 
                 if (!parametros.isEmpty()) {
-                    ManipuladorParametrosRequisicao<DespesaPublica> manipuladorParametrosRequisicao = new ManipuladorParametrosRequisicao(manipuladorDespesaPublica);
-                    manipuladorParametrosRequisicao.formatarParametrosDaRequisicao(parametros);
+                    GeradorOperacoesRequisicao<DespesaPublica> geradorOperacoesRequisicao = new GeradorOperacoesRequisicao(manipuladorDespesaPublica);
+                    geradorOperacoesRequisicao.gerarOperacoesDaRequisicaoConformeParametros(parametros);
+                    //Predicate<DespesaPublica> despesaPublicaPredicate = (Predicate<DespesaPublica>) geradorOperacoesRequisicao.getParametrosRequest().get(TipoParametro.FILTER).getOperacao();
+                    Function<DespesaPublica, Object> despesaPublicaFunction = (Function<DespesaPublica, Object>) geradorOperacoesRequisicao.getParametrosRequest().get(TipoParametro.MAP).getOperacao();
 
-                    despesasPublicas = despesasPublicas.stream()
-                            .filter(manipuladorParametrosRequisicao.getPredicateFilterOptional().get())
+                    response = despesasPublicas.stream()
+                            .map(despesaPublicaFunction)
+                            .peek(System.out::println)
                             .collect(Collectors.toList());
                 }
 
-                return ResponseEntity.ok(despesasPublicas);
+                return ResponseEntity.ok(response);
             }
 
             throw new RuntimeException("A requisição pela busca das despesas de Minas Gerais falhou!");
