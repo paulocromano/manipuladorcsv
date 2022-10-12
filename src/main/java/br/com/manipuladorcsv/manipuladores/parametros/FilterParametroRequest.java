@@ -44,10 +44,6 @@ public class FilterParametroRequest<E> implements ParametroRequest<E, Predicate<
                 : construirPredicateDeAcordoComParametrosDaRequisicao(conteudoParametro).get();
     }
 
-    private void separarCondicionais(String expressaoCompleta) {
-
-    }
-
     private boolean expressaoContemOperadorLogicoAndOr(String expressaoCompleta) {
         return expressaoCompleta.contains(OperadorLogico.AND.getValor()) || expressaoCompleta.contains(OperadorLogico.OR.getValor());
     }

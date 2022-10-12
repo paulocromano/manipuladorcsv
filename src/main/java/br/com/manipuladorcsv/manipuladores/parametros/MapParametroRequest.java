@@ -5,6 +5,7 @@ import br.com.manipuladorcsv.manipuladores.operacoes.ManipuladorFunctionImpl;
 import br.com.manipuladorcsv.manipuladores.interfaces.ManipuladorParametroRequest;
 
 import java.lang.reflect.Field;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -32,6 +33,8 @@ public class MapParametroRequest<E> implements ParametroRequest<E, Function<E, O
 
     @Override
     public Function<E, Object> getOperacao() {
+        Objects.requireNonNull(manipuladorParametroRequest);
+        Objects.requireNonNull(conteudoParametro);
         Field field = validarField();
         return this.manipuladorFunction.gerarFunction(field);
     }

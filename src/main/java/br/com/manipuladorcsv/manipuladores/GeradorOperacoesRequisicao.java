@@ -8,25 +8,20 @@ import br.com.manipuladorcsv.manipuladores.parametros.MapParametroRequest;
 import br.com.manipuladorcsv.manipuladores.parametros.ParametroRequest;
 import lombok.Getter;
 
-import java.util.*;
-import java.util.function.Predicate;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class GeradorOperacoesRequisicao<E> {
 
     @Getter
-    private Optional<Predicate<E>> predicateFilterOptional;
-
-
-    @Getter
-    private Map<TipoParametro, ParametroRequest<E, ?>> parametrosRequest;
+    private Map<TipoParametro, ParametroRequest<E, ?>> operacoesParametrosRequest;
     private ManipuladorParametroRequest<E> manipuladorParametroRequest;
 
 
     public GeradorOperacoesRequisicao(ManipuladorParametroRequest<E> manipuladorParametroRequest) {
         this.manipuladorParametroRequest = manipuladorParametroRequest;
-        this.predicateFilterOptional = Optional.empty();
-        this.parametrosRequest = new HashMap<>();
+        this.operacoesParametrosRequest = new HashMap<>();
     }
 
     public void gerarOperacoesDaRequisicaoConformeParametros(Map<String, String> parametros) {
@@ -48,13 +43,18 @@ public class GeradorOperacoesRequisicao<E> {
                         parametroRequest = new GroupByParametroRequest<E>();
                         break;
                     }
-                    default: throw new RuntimeException("Tipo de operação não implementada!");
+                    default: throw new IllegalStateException("Tipo de operação não implementada!");
                 }
 
                 parametroRequest.setManipuladorParametroRequest(this.manipuladorParametroRequest);
                 parametroRequest.setConteudoParametro(parametro);
-                this.parametrosRequest.put(tipoParametro, parametroRequest);
+                this.operacoesParametrosRequest.put(tipoParametro, parametroRequest);
             }
         }
+    }
+
+    public Object getOperacaoParametroRequest(TipoParametro tipoParametro) {
+        if (!operacoesParametrosRequest.containsKey(tipoParametro))  throw new IllegalArgumentException("Tipo de parâmetro não encontrado!");
+        return operacoesParametrosRequest.get(tipoParametro).getOperacao();
     }
 }
