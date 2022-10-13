@@ -2,10 +2,7 @@ package br.com.manipuladorcsv.manipuladores;
 
 import br.com.manipuladorcsv.manipuladores.enums.TipoParametro;
 import br.com.manipuladorcsv.manipuladores.interfaces.ManipuladorParametroRequest;
-import br.com.manipuladorcsv.manipuladores.parametros.FilterParametroRequest;
-import br.com.manipuladorcsv.manipuladores.parametros.GroupByParametroRequest;
-import br.com.manipuladorcsv.manipuladores.parametros.MapParametroRequest;
-import br.com.manipuladorcsv.manipuladores.parametros.ParametroRequest;
+import br.com.manipuladorcsv.manipuladores.parametros.*;
 import lombok.Getter;
 
 import java.util.HashMap;
@@ -37,6 +34,10 @@ public class GeradorOperacoesRequisicao<E> {
                     }
                     case MAP: {
                         parametroRequest = new MapParametroRequest<E>();
+                        break;
+                    }
+                    case ORDER_BY: {
+                        parametroRequest = new OrderByParametroRequest<E>();
                         break;
                     }
                     case GROUPY_BY: {

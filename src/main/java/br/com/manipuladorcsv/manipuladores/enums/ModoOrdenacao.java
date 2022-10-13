@@ -6,14 +6,11 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public enum TipoParametro {
+public enum ModoOrdenacao {
 
-    FILTER("filter", false),
-    MAP("map", false),
-    ORDER_BY("orderBy", false),
-    GROUPY_BY("groupBy", true);
+    ASCENDENTE("asc"),
+    DESCENTEDENTE("desc");
 
 
     private String valor;
-    private Boolean operacaoTerminal;
 }

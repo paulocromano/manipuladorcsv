@@ -37,7 +37,7 @@ public class GroupByParametroRequest<E> implements ParametroRequest<E, Collector
         Field field = validarField();
         Function<E, Object> function = this.manipuladorFunction.gerarFunction(field);
 
-        return Collectors.groupingBy(function, Collectors.toCollection(LinkedList::new));
+        return Collectors.groupingBy(function, LinkedHashMap::new, Collectors.toCollection(LinkedList::new));
     }
 
     private Field validarField() {

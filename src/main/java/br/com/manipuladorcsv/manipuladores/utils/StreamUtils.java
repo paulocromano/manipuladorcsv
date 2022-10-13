@@ -5,8 +5,10 @@ import br.com.manipuladorcsv.manipuladores.enums.TipoParametro;
 import br.com.manipuladorcsv.manipuladores.interfaces.ManipuladorParametroRequest;
 import br.com.manipuladorcsv.manipuladores.parametros.ParametroRequest;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
@@ -50,6 +52,11 @@ public class StreamUtils {
                     stream = stream.map(function);
                     break;
                 }
+                case ORDER_BY: {
+                     Comparator<Object> comparator = (Comparator<Object>) geradorOperacoesRequisicao.getOperacaoParametroRequest(TipoParametro.ORDER_BY);
+                     stream = stream.sorted(comparator);
+                     break;
+                }
                 case GROUPY_BY: {
                     Collector<Object, ?, ?> collector = (Collector<Object, ?, ?>) geradorOperacoesRequisicao.getOperacaoParametroRequest(TipoParametro.GROUPY_BY);
                     return stream.collect(collector);
@@ -59,6 +66,21 @@ public class StreamUtils {
             }
         }
 
-        throw new IllegalStateException("Operação terminal não encontrada!");
+        return gerarOperacaoTerminalCasoNaoTenhaSidoEspecificaNosParametrosDaRequisicao(stream, operacoesParametrosRequest);
+    }
+
+    private static <E> Object gerarOperacaoTerminalCasoNaoTenhaSidoEspecificaNosParametrosDaRequisicao(Stream<?> stream,
+            Map<TipoParametro, ParametroRequest<E, ?>> operacoesParametrosRequest) {
+
+        Optional<TipoParametro> tipoParametroTerminalOptional = operacoesParametrosRequest.entrySet()
+                .stream()
+                .map(Map.Entry::getKey)
+                .filter(TipoParametro::getOperacaoTerminal)
+                .findFirst();
+
+        if (tipoParametroTerminalOptional.isEmpty())
+            return stream.collect(Collectors.toList());
+
+        throw new IllegalStateException("Operação terminal não tratada!");
     }
 }

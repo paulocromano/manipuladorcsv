@@ -3,8 +3,6 @@ package br.com.manipuladorcsv.despesaPublica.service;
 import br.com.manipuladorcsv.despesaPublica.model.DespesaPublica;
 import br.com.manipuladorcsv.despesaPublica.model.ManipuladorParametroRequestDespesaPublica;
 import br.com.manipuladorcsv.despesaPublica.request.BuscaDepesasPublicasService;
-import br.com.manipuladorcsv.manipuladores.GeradorOperacoesRequisicao;
-import br.com.manipuladorcsv.manipuladores.enums.TipoParametro;
 import br.com.manipuladorcsv.manipuladores.utils.StreamUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,11 +14,8 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 @Service
 public class DespesaPublicaService {
@@ -32,7 +27,7 @@ public class DespesaPublicaService {
     private ManipuladorParametroRequestDespesaPublica manipuladorDespesaPublica;
 
 
-    public ResponseEntity<Object> buscarDespesasPublicasDeMinasGerais(Map<String, String> parametros) {
+    public ResponseEntity<Object> buscarDespesasPublicasDeMinasGerais(LinkedHashMap<String, String> parametros) {
         Retrofit retrofit =
                 new Retrofit.Builder()
                         .baseUrl(urlServicoDespesaPublica)

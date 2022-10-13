@@ -12,7 +12,7 @@ import java.util.function.Function;
 public class MapParametroRequest<E> implements ParametroRequest<E, Function<E, Object>> {
 
     private ManipuladorParametroRequest<E> manipuladorParametroRequest;
-    private String conteudoParametro = null;
+    private String conteudoParametro;
     private ManipuladorFunction<E> manipuladorFunction;
 
     private static final String ATRIBUICAO = "=";
