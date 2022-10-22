@@ -77,7 +77,7 @@ public class OrderByParametroRequest<E> implements ParametroRequest<E, Comparato
     }
 
     private ModoOrdenacao validarModoOrdenacao(String[] partesDaExpressao) {
-        if (partesDaExpressao.length < 2) throw new IllegalArgumentException("A expressão contem sintáxe inválida ->" + Arrays.toString(partesDaExpressao));
+        if (partesDaExpressao.length < 2) throw new IllegalArgumentException("A expressão contem sintáxe inválida -> " + Arrays.toString(partesDaExpressao));
 
         String modoOrdenacaoParametro = partesDaExpressao[1];
 

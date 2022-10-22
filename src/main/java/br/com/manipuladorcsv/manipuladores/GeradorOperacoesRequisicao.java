@@ -5,7 +5,7 @@ import br.com.manipuladorcsv.manipuladores.interfaces.ManipuladorParametroReques
 import br.com.manipuladorcsv.manipuladores.parametros.*;
 import lombok.Getter;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 
@@ -18,7 +18,7 @@ public class GeradorOperacoesRequisicao<E> {
 
     public GeradorOperacoesRequisicao(ManipuladorParametroRequest<E> manipuladorParametroRequest) {
         this.manipuladorParametroRequest = manipuladorParametroRequest;
-        this.operacoesParametrosRequest = new HashMap<>();
+        this.operacoesParametrosRequest = new LinkedHashMap<>();
     }
 
     public void gerarOperacoesDaRequisicaoConformeParametros(Map<String, String> parametros) {
