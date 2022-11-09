@@ -1,0 +1,5 @@
+- http://localhost:8080/despesa-publica/despesas-minas-gerais
+- http://localhost:8080/despesa-publica/despesas-minas-gerais?filter=anoExercicio=2017<@@anoExercicio=2014>
+- http://localhost:8080/despesa-publica/despesas-minas-gerais?filter=anoExercicio=2017<@@anoExercicio=2014>&orderBy=anoExercicio=asc
+- http://localhost:8080/despesa-publica/despesas-minas-gerais?filter=anoExercicio=2017<@@anoExercicio=2014>&orderBy=anoExercicio=asc&groupBy=anoExercicio
+- http://localhost:8080/despesa-publica/despesas-minas-gerais?filter=anoExercicio=2017<@@anoExercicio=2014>&map=anoExercicio&orderBy=desc
